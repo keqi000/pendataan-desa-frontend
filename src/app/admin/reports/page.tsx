@@ -29,6 +29,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { Card, Button, Badge, LoadingSpinner } from "../components";
+import * as XLSX from "xlsx";
 
 interface ReportTemplate {
   id: string;
@@ -188,6 +189,724 @@ export default function ReportsPage() {
     "Bone Raya",
     "Bulango Timur",
   ];
+
+  // Mock data untuk Excel
+  const getMockDataForTemplate = (templateId: string) => {
+    const template = reportTemplates.find((t) => t.id === templateId);
+    if (!template) return {};
+
+    const data: any = {};
+
+    // Data Umum Desa
+    if (template.sections.includes("data-umum")) {
+      data["Data Umum Desa"] = [
+        {
+          "Nama Desa": "Tibawa",
+          Kecamatan: "Bone Pantai",
+          Kabupaten: "Bone Bolango",
+          Provinsi: "Gorontalo",
+        },
+        {
+          "Nama Desa": "Bulango Selatan",
+          Kecamatan: "Bulango Selatan",
+          Kabupaten: "Bone Bolango",
+          Provinsi: "Gorontalo",
+        },
+        {
+          "Nama Desa": "Bone Pantai",
+          Kecamatan: "Bone Pantai",
+          Kabupaten: "Bone Bolango",
+          Provinsi: "Gorontalo",
+        },
+        {
+          "Nama Desa": "Tibawa Tengah",
+          Kecamatan: "Bone Pantai",
+          Kabupaten: "Bone Bolango",
+          Provinsi: "Gorontalo",
+        },
+        {
+          "Nama Desa": "Bulango Utara",
+          Kecamatan: "Bulango Utara",
+          Kabupaten: "Bone Bolango",
+          Provinsi: "Gorontalo",
+        },
+      ];
+    }
+
+    // Data Kependudukan
+    if (template.sections.includes("kependudukan")) {
+      data["Data Kependudukan"] = [
+        {
+          Desa: "Tibawa",
+          "Jumlah Penduduk": 2450,
+          "Laki-laki": 1230,
+          Perempuan: 1220,
+          KK: 650,
+        },
+        {
+          Desa: "Bulango Selatan",
+          "Jumlah Penduduk": 1890,
+          "Laki-laki": 945,
+          Perempuan: 945,
+          KK: 485,
+        },
+        {
+          Desa: "Bone Pantai",
+          "Jumlah Penduduk": 3200,
+          "Laki-laki": 1600,
+          Perempuan: 1600,
+          KK: 820,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          "Jumlah Penduduk": 1750,
+          "Laki-laki": 875,
+          Perempuan: 875,
+          KK: 450,
+        },
+        {
+          Desa: "Bulango Utara",
+          "Jumlah Penduduk": 2100,
+          "Laki-laki": 1050,
+          Perempuan: 1050,
+          KK: 540,
+        },
+      ];
+    }
+
+    // Demografis Detail
+    if (template.sections.includes("demografis-detail")) {
+      data["Demografis Detail"] = [
+        {
+          Desa: "Tibawa",
+          "Usia 0-14": 490,
+          "Usia 15-64": 1715,
+          "Usia 65+": 245,
+          "Rasio Ketergantungan": 42.8,
+        },
+        {
+          Desa: "Bulango Selatan",
+          "Usia 0-14": 378,
+          "Usia 15-64": 1323,
+          "Usia 65+": 189,
+          "Rasio Ketergantungan": 42.9,
+        },
+        {
+          Desa: "Bone Pantai",
+          "Usia 0-14": 640,
+          "Usia 15-64": 2240,
+          "Usia 65+": 320,
+          "Rasio Ketergantungan": 42.9,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          "Usia 0-14": 350,
+          "Usia 15-64": 1225,
+          "Usia 65+": 175,
+          "Rasio Ketergantungan": 42.9,
+        },
+        {
+          Desa: "Bulango Utara",
+          "Usia 0-14": 420,
+          "Usia 15-64": 1470,
+          "Usia 65+": 210,
+          "Rasio Ketergantungan": 42.9,
+        },
+      ];
+    }
+
+    // Data Pendidikan
+    if (template.sections.includes("pendidikan")) {
+      data["Data Pendidikan"] = [
+        {
+          Desa: "Tibawa",
+          TK: 2,
+          SD: 3,
+          SMP: 1,
+          SMA: 1,
+          "Perguruan Tinggi": 0,
+          "Angka Melek Huruf": 95.2,
+        },
+        {
+          Desa: "Bulango Selatan",
+          TK: 1,
+          SD: 2,
+          SMP: 1,
+          SMA: 0,
+          "Perguruan Tinggi": 0,
+          "Angka Melek Huruf": 92.8,
+        },
+        {
+          Desa: "Bone Pantai",
+          TK: 3,
+          SD: 4,
+          SMP: 2,
+          SMA: 1,
+          "Perguruan Tinggi": 0,
+          "Angka Melek Huruf": 96.5,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          TK: 1,
+          SD: 2,
+          SMP: 1,
+          SMA: 0,
+          "Perguruan Tinggi": 0,
+          "Angka Melek Huruf": 93.4,
+        },
+        {
+          Desa: "Bulango Utara",
+          TK: 2,
+          SD: 3,
+          SMP: 1,
+          SMA: 1,
+          "Perguruan Tinggi": 0,
+          "Angka Melek Huruf": 94.8,
+        },
+      ];
+    }
+
+    // Data Ekonomi
+    if (template.sections.includes("ekonomi")) {
+      data["Data Ekonomi"] = [
+        {
+          Desa: "Tibawa",
+          Pertanian: 450,
+          Perikanan: 120,
+          Perdagangan: 80,
+          Jasa: 60,
+          Lainnya: 40,
+          Pengangguran: 5.2,
+        },
+        {
+          Desa: "Bulango Selatan",
+          Pertanian: 320,
+          Perikanan: 90,
+          Perdagangan: 50,
+          Jasa: 35,
+          Lainnya: 25,
+          Pengangguran: 6.1,
+        },
+        {
+          Desa: "Bone Pantai",
+          Pertanian: 580,
+          Perikanan: 200,
+          Perdagangan: 120,
+          Jasa: 90,
+          Lainnya: 60,
+          Pengangguran: 4.8,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          Pertanian: 280,
+          Perikanan: 70,
+          Perdagangan: 40,
+          Jasa: 30,
+          Lainnya: 20,
+          Pengangguran: 6.8,
+        },
+        {
+          Desa: "Bulango Utara",
+          Pertanian: 380,
+          Perikanan: 100,
+          Perdagangan: 70,
+          Jasa: 50,
+          Lainnya: 35,
+          Pengangguran: 5.5,
+        },
+      ];
+    }
+
+    // Data Infrastruktur
+    if (template.sections.includes("infrastruktur")) {
+      data["Data Infrastruktur"] = [
+        {
+          Desa: "Tibawa",
+          "Jalan Aspal (km)": 12.5,
+          "Jalan Beton (km)": 8.2,
+          "Jalan Tanah (km)": 15.3,
+          Jembatan: 4,
+          "Akses Listrik (%)": 98.5,
+          "Akses Air Bersih (%)": 85.2,
+        },
+        {
+          Desa: "Bulango Selatan",
+          "Jalan Aspal (km)": 8.7,
+          "Jalan Beton (km)": 5.4,
+          "Jalan Tanah (km)": 12.1,
+          Jembatan: 2,
+          "Akses Listrik (%)": 95.8,
+          "Akses Air Bersih (%)": 78.9,
+        },
+        {
+          Desa: "Bone Pantai",
+          "Jalan Aspal (km)": 18.2,
+          "Jalan Beton (km)": 12.8,
+          "Jalan Tanah (km)": 22.5,
+          Jembatan: 6,
+          "Akses Listrik (%)": 99.2,
+          "Akses Air Bersih (%)": 92.1,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          "Jalan Aspal (km)": 6.8,
+          "Jalan Beton (km)": 4.2,
+          "Jalan Tanah (km)": 9.5,
+          Jembatan: 1,
+          "Akses Listrik (%)": 94.2,
+          "Akses Air Bersih (%)": 72.8,
+        },
+        {
+          Desa: "Bulango Utara",
+          "Jalan Aspal (km)": 10.5,
+          "Jalan Beton (km)": 7.1,
+          "Jalan Tanah (km)": 14.8,
+          Jembatan: 3,
+          "Akses Listrik (%)": 97.5,
+          "Akses Air Bersih (%)": 82.4,
+        },
+      ];
+    }
+
+    // Analisis Tingkat 1
+    if (template.sections.includes("analisis-tingkat1")) {
+      data["Analisis Dasar"] = [
+        {
+          Desa: "Tibawa",
+          "Kepadatan Penduduk (jiwa/km²)": 245,
+          "Pertumbuhan Penduduk (%)": 1.2,
+          IPM: 68.5,
+          "Tingkat Kemiskinan (%)": 12.8,
+        },
+        {
+          Desa: "Bulango Selatan",
+          "Kepadatan Penduduk (jiwa/km²)": 189,
+          "Pertumbuhan Penduduk (%)": 0.8,
+          IPM: 65.2,
+          "Tingkat Kemiskinan (%)": 15.4,
+        },
+        {
+          Desa: "Bone Pantai",
+          "Kepadatan Penduduk (jiwa/km²)": 320,
+          "Pertumbuhan Penduduk (%)": 1.5,
+          IPM: 71.2,
+          "Tingkat Kemiskinan (%)": 10.2,
+        },
+        {
+          Desa: "Tibawa Tengah",
+          "Kepadatan Penduduk (jiwa/km²)": 175,
+          "Pertumbuhan Penduduk (%)": 0.6,
+          IPM: 63.8,
+          "Tingkat Kemiskinan (%)": 18.1,
+        },
+        {
+          Desa: "Bulango Utara",
+          "Kepadatan Penduduk (jiwa/km²)": 210,
+          "Pertumbuhan Penduduk (%)": 1.0,
+          IPM: 66.9,
+          "Tingkat Kemiskinan (%)": 13.5,
+        },
+      ];
+    }
+
+    // Analisis Tingkat 2
+    if (template.sections.includes("analisis-tingkat2")) {
+      data["Analisis Lanjutan"] = [
+        {
+          Indikator: "Rata-rata IPM",
+          Nilai: 67.12,
+          Target: 70.0,
+          "Capaian (%)": 95.9,
+          Status: "Mendekati Target",
+        },
+        {
+          Indikator: "Rata-rata Tingkat Kemiskinan",
+          Nilai: 14.0,
+          Target: 12.0,
+          "Capaian (%)": 85.7,
+          Status: "Perlu Perbaikan",
+        },
+        {
+          Indikator: "Akses Listrik",
+          Nilai: 97.04,
+          Target: 98.0,
+          "Capaian (%)": 99.0,
+          Status: "Mendekati Target",
+        },
+        {
+          Indikator: "Akses Air Bersih",
+          Nilai: 82.28,
+          Target: 90.0,
+          "Capaian (%)": 91.4,
+          Status: "Perlu Perbaikan",
+        },
+        {
+          Indikator: "Angka Melek Huruf",
+          Nilai: 94.54,
+          Target: 95.0,
+          "Capaian (%)": 99.5,
+          Status: "Mendekati Target",
+        },
+      ];
+    }
+
+    // Prediksi
+    if (template.sections.includes("prediksi")) {
+      data["Prediksi 2025-2030"] = [
+        {
+          Tahun: 2025,
+          "Prediksi Populasi": 12500,
+          "IPM Target": 69.0,
+          "Kemiskinan Target (%)": 12.5,
+          "Akses Air Bersih Target (%)": 85.0,
+        },
+        {
+          Tahun: 2026,
+          "Prediksi Populasi": 12750,
+          "IPM Target": 70.0,
+          "Kemiskinan Target (%)": 11.5,
+          "Akses Air Bersih Target (%)": 87.0,
+        },
+        {
+          Tahun: 2027,
+          "Prediksi Populasi": 13000,
+          "IPM Target": 71.0,
+          "Kemiskinan Target (%)": 10.5,
+          "Akses Air Bersih Target (%)": 89.0,
+        },
+        {
+          Tahun: 2028,
+          "Prediksi Populasi": 13250,
+          "IPM Target": 72.0,
+          "Kemiskinan Target (%)": 9.5,
+          "Akses Air Bersih Target (%)": 91.0,
+        },
+        {
+          Tahun: 2029,
+          "Prediksi Populasi": 13500,
+          "IPM Target": 73.0,
+          "Kemiskinan Target (%)": 8.5,
+          "Akses Air Bersih Target (%)": 93.0,
+        },
+        {
+          Tahun: 2030,
+          "Prediksi Populasi": 13750,
+          "IPM Target": 74.0,
+          "Kemiskinan Target (%)": 7.5,
+          "Akses Air Bersih Target (%)": 95.0,
+        },
+      ];
+    }
+
+    // Quality Check
+    if (template.sections.includes("quality-check")) {
+      data["Validasi Kualitas Data"] = [
+        {
+          "Kategori Data": "Data Kependudukan",
+          "Kelengkapan (%)": 98.5,
+          "Konsistensi (%)": 96.2,
+          "Akurasi (%)": 94.8,
+          Status: "Baik",
+        },
+        {
+          "Kategori Data": "Data Pendidikan",
+          "Kelengkapan (%)": 95.2,
+          "Konsistensi (%)": 93.1,
+          "Akurasi (%)": 91.5,
+          Status: "Baik",
+        },
+        {
+          "Kategori Data": "Data Ekonomi",
+          "Kelengkapan (%)": 89.8,
+          "Konsistensi (%)": 87.4,
+          "Akurasi (%)": 85.2,
+          Status: "Cukup",
+        },
+        {
+          "Kategori Data": "Data Infrastruktur",
+          "Kelengkapan (%)": 92.1,
+          "Konsistensi (%)": 90.5,
+          "Akurasi (%)": 88.9,
+          Status: "Baik",
+        },
+        {
+          "Kategori Data": "Data Kesehatan",
+          "Kelengkapan (%)": 87.3,
+          "Konsistensi (%)": 84.7,
+          "Akurasi (%)": 82.1,
+          Status: "Cukup",
+        },
+      ];
+    }
+
+    // Perbandingan
+    if (template.sections.includes("perbandingan")) {
+      data["Perbandingan Antar Desa"] = [
+        {
+          Indikator: "Jumlah Penduduk",
+          Tertinggi: "Bone Pantai (3200)",
+          Terendah: "Tibawa Tengah (1750)",
+          "Rata-rata": 2278,
+          "Standar Deviasi": 612.5,
+        },
+        {
+          Indikator: "IPM",
+          Tertinggi: "Bone Pantai (71.2)",
+          Terendah: "Tibawa Tengah (63.8)",
+          "Rata-rata": 67.12,
+          "Standar Deviasi": 2.8,
+        },
+        {
+          Indikator: "Tingkat Kemiskinan (%)",
+          Tertinggi: "Tibawa Tengah (18.1)",
+          Terendah: "Bone Pantai (10.2)",
+          "Rata-rata": 14.0,
+          "Standar Deviasi": 3.2,
+        },
+        {
+          Indikator: "Akses Listrik (%)",
+          Tertinggi: "Bone Pantai (99.2)",
+          Terendah: "Tibawa Tengah (94.2)",
+          "Rata-rata": 97.04,
+          "Standar Deviasi": 1.9,
+        },
+        {
+          Indikator: "Akses Air Bersih (%)",
+          Tertinggi: "Bone Pantai (92.1)",
+          Terendah: "Tibawa Tengah (72.8)",
+          "Rata-rata": 82.28,
+          "Standar Deviasi": 7.8,
+        },
+      ];
+    }
+
+    return data;
+  };
+
+  const generateExcelReport = (templateId: string) => {
+    const template = reportTemplates.find((t) => t.id === templateId);
+    if (!template) return;
+
+    const data = getMockDataForTemplate(templateId);
+    const workbook = XLSX.utils.book_new();
+
+    // Header Sheet dengan informasi laporan
+    const headerData = [
+      ["LAPORAN DESA KABUPATEN BONE BOLANGO"],
+      ["PROVINSI GORONTALO"],
+      [""],
+      ["Nama Laporan:", template.name],
+      ["Deskripsi:", template.description],
+      ["Periode:", "Januari 2025"],
+      ["Tanggal Dibuat:", new Date().toLocaleDateString("id-ID")],
+      ["Format:", template.format.toUpperCase()],
+      [
+        "Kategori:",
+        template.category.charAt(0).toUpperCase() + template.category.slice(1),
+      ],
+      [""],
+      ["RINGKASAN EKSEKUTIF"],
+      [
+        "Laporan ini berisi data dan analisis komprehensif mengenai kondisi desa-desa",
+      ],
+      ["di Kabupaten Bone Bolango untuk mendukung pengambilan kebijakan"],
+      ["pemerintah pusat dalam program pembangunan desa."],
+      [""],
+      ["Bagian yang disertakan:"],
+      ...template.sections.map((section) => {
+        const sectionInfo = availableSections.find((s) => s.id === section);
+        return [`- ${sectionInfo?.name || section}`];
+      }),
+    ];
+
+    const headerSheet = XLSX.utils.aoa_to_sheet(headerData);
+
+    // Styling untuk header
+    const headerRange = XLSX.utils.decode_range(headerSheet["!ref"] || "A1");
+    for (let row = headerRange.s.r; row <= headerRange.e.r; row++) {
+      for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+        if (!headerSheet[cellAddress]) continue;
+
+        if (row === 0 || row === 1) {
+          headerSheet[cellAddress].s = {
+            font: { bold: true, sz: 14 },
+            alignment: { horizontal: "center" },
+          };
+        } else if (row >= 3 && row <= 8) {
+          if (col === 0) {
+            headerSheet[cellAddress].s = { font: { bold: true } };
+          }
+        } else if (row === 10) {
+          headerSheet[cellAddress].s = { font: { bold: true, sz: 12 } };
+        }
+      }
+    }
+
+    headerSheet["!cols"] = [{ width: 30 }, { width: 50 }];
+    XLSX.utils.book_append_sheet(workbook, headerSheet, "Informasi Laporan");
+
+    // Tambahkan sheet untuk setiap bagian data
+    Object.entries(data).forEach(([sheetName, sheetData]) => {
+      if (Array.isArray(sheetData) && sheetData.length > 0) {
+        const worksheet = XLSX.utils.json_to_sheet(sheetData);
+
+        // Auto-width untuk kolom
+        const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+        const colWidths: any[] = [];
+
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          let maxWidth = 10;
+          for (let row = range.s.r; row <= range.e.r; row++) {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+            if (worksheet[cellAddress] && worksheet[cellAddress].v) {
+              const cellValue = worksheet[cellAddress].v.toString();
+              maxWidth = Math.max(maxWidth, cellValue.length + 2);
+            }
+          }
+          colWidths.push({ width: Math.min(maxWidth, 30) });
+        }
+        worksheet["!cols"] = colWidths;
+
+        // Styling untuk header row
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const headerCellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+          if (worksheet[headerCellAddress]) {
+            worksheet[headerCellAddress].s = {
+              font: { bold: true },
+              fill: { fgColor: { rgb: "E3F2FD" } },
+              alignment: { horizontal: "center" },
+            };
+          }
+        }
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      }
+    });
+
+    // Sheet Kesimpulan dan Rekomendasi
+    const conclusionData = [
+      ["KESIMPULAN DAN REKOMENDASI"],
+      [""],
+      ["KESIMPULAN UTAMA:"],
+      [
+        "1. Bone Pantai menunjukkan kinerja terbaik dalam sebagian besar indikator",
+      ],
+      [
+        "2. Tibawa Tengah memerlukan perhatian khusus dalam pengentasan kemiskinan",
+      ],
+      ["3. Akses air bersih masih menjadi tantangan di beberapa desa"],
+      ["4. Tingkat melek huruf sudah mencapai standar yang baik (>90%)"],
+      ["5. Infrastruktur jalan perlu peningkatan di desa-desa terpencil"],
+      [""],
+      ["REKOMENDASI KEBIJAKAN:"],
+      ["1. Program Pengentasan Kemiskinan:"],
+      ["   - Fokus pada Tibawa Tengah dan Bulango Selatan"],
+      ["   - Pengembangan UMKM dan koperasi desa"],
+      ["   - Pelatihan keterampilan untuk meningkatkan produktivitas"],
+      [""],
+      ["2. Peningkatan Akses Air Bersih:"],
+      ["   - Pembangunan sistem penyediaan air bersih di Tibawa Tengah"],
+      ["   - Rehabilitasi infrastruktur air di Bulango Selatan"],
+      ["   - Program bantuan teknis pengelolaan air desa"],
+      [""],
+      ["3. Pengembangan Infrastruktur:"],
+      ["   - Peningkatan kualitas jalan penghubung antar desa"],
+      ["   - Pembangunan jembatan di lokasi strategis"],
+      ["   - Perbaikan akses transportasi umum"],
+      [""],
+      ["4. Peningkatan Kualitas Pendidikan:"],
+      ["   - Penambahan fasilitas pendidikan di desa dengan akses terbatas"],
+      [
+        "   - Program beasiswa untuk siswa berprestasi dari keluarga kurang mampu",
+      ],
+      ["   - Pelatihan guru dan peningkatan kualitas pembelajaran"],
+      [""],
+      ["PRIORITAS PROGRAM 2025:"],
+      ["1. Program air bersih di Tibawa Tengah (Prioritas Tinggi)"],
+      ["2. Pengentasan kemiskinan di 3 desa tertinggal (Prioritas Tinggi)"],
+      ["3. Peningkatan infrastruktur jalan (Prioritas Sedang)"],
+      ["4. Pengembangan ekonomi kreatif (Prioritas Sedang)"],
+      [""],
+      ["INDIKATOR KEBERHASILAN:"],
+      ["- Penurunan tingkat kemiskinan menjadi <12% di semua desa"],
+      ["- Peningkatan akses air bersih menjadi >85% di semua desa"],
+      ["- Peningkatan IPM rata-rata menjadi >70"],
+      ["- Penambahan panjang jalan beraspal minimal 20 km"],
+      [""],
+      ["Laporan ini disusun berdasarkan data terkini dan analisis mendalam"],
+      ["untuk mendukung pengambilan keputusan strategis pemerintah pusat"],
+      ["dalam program pembangunan desa berkelanjutan."],
+    ];
+
+    const conclusionSheet = XLSX.utils.aoa_to_sheet(conclusionData);
+
+    // Styling untuk conclusion sheet
+    const conclusionRange = XLSX.utils.decode_range(
+      conclusionSheet["!ref"] || "A1"
+    );
+    for (let row = conclusionRange.s.r; row <= conclusionRange.e.r; row++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 });
+      if (!conclusionSheet[cellAddress]) continue;
+
+      const cellValue = conclusionSheet[cellAddress].v?.toString() || "";
+
+      if (row === 0) {
+        conclusionSheet[cellAddress].s = {
+          font: { bold: true, sz: 14 },
+          alignment: { horizontal: "center" },
+        };
+      } else if (
+        cellValue.includes("KESIMPULAN UTAMA:") ||
+        cellValue.includes("REKOMENDASI KEBIJAKAN:") ||
+        cellValue.includes("PRIORITAS PROGRAM 2025:") ||
+        cellValue.includes("INDIKATOR KEBERHASILAN:")
+      ) {
+        conclusionSheet[cellAddress].s = {
+          font: { bold: true, sz: 12 },
+          fill: { fgColor: { rgb: "FFF3E0" } },
+        };
+      } else if (cellValue.match(/^\d+\./)) {
+        conclusionSheet[cellAddress].s = { font: { bold: true } };
+      }
+    }
+
+    conclusionSheet["!cols"] = [{ width: 80 }];
+    XLSX.utils.book_append_sheet(
+      workbook,
+      conclusionSheet,
+      "Kesimpulan & Rekomendasi"
+    );
+
+    // Generate dan download file
+    const fileName = `${template.name.replace(/\s+/g, "_")}_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
+  const handleDownloadFromHistory = (report: ReportHistory) => {
+    if (report.status !== "completed") return;
+
+    // Cari template berdasarkan nama laporan
+    const template = reportTemplates.find(
+      (t) =>
+        report.templateName.includes(t.name) ||
+        t.name.includes(report.templateName.replace("Laporan Custom - ", ""))
+    );
+
+    if (template && report.format.toLowerCase() === "excel") {
+      generateExcelReport(template.id);
+    } else if (report.format.toLowerCase() === "pdf") {
+      // Untuk PDF, kita bisa buat mock download atau redirect
+      alert(
+        "Fitur download PDF akan segera tersedia. Saat ini hanya mendukung Excel."
+      );
+    } else {
+      // Untuk format lain
+      alert(`Download ${report.format} akan segera tersedia.`);
+    }
+  };
 
   useEffect(() => {
     const fetchReportData = async () => {
@@ -458,6 +1177,13 @@ export default function ReportsPage() {
       };
 
       setReportHistory((prev) => [newReport, ...prev]);
+
+      // Langsung generate Excel jika formatnya Excel
+      if (template.format === "excel") {
+        setTimeout(() => {
+          generateExcelReport(templateId);
+        }, 500);
+      }
     }
 
     setIsGenerating(false);
@@ -488,6 +1214,27 @@ export default function ReportsPage() {
     };
 
     setReportHistory((prev) => [newReport, ...prev]);
+
+    // Generate Excel untuk custom report
+    if (customBuilder.format === "excel") {
+      // Buat template sementara untuk custom report
+      const customTemplate: ReportTemplate = {
+        id: "custom-" + Date.now(),
+        name: customBuilder.name,
+        description: customBuilder.description,
+        category: "komprehensif",
+        type: "custom",
+        sections: customBuilder.selectedSections,
+        frequency: "custom",
+        format: "excel",
+        isActive: true,
+      };
+
+      setTimeout(() => {
+        generateCustomExcelReport(customTemplate);
+      }, 500);
+    }
+
     setIsGenerating(false);
     setShowCustomBuilder(false);
 
@@ -502,6 +1249,98 @@ export default function ReportsPage() {
       includeCharts: true,
       includeComparison: false,
     });
+  };
+
+  const generateCustomExcelReport = (template: ReportTemplate) => {
+    const data = getMockDataForTemplate(template.id);
+    const workbook = XLSX.utils.book_new();
+
+    // Header Sheet untuk custom report
+    const headerData = [
+      ["LAPORAN CUSTOM DESA KABUPATEN BONE BOLANGO"],
+      ["PROVINSI GORONTALO"],
+      [""],
+      ["Nama Laporan:", template.name],
+      ["Deskripsi:", template.description || "Laporan custom sesuai kebutuhan"],
+      [
+        "Periode:",
+        customBuilder.dateRange.start && customBuilder.dateRange.end
+          ? `${customBuilder.dateRange.start} - ${customBuilder.dateRange.end}`
+          : "Custom Period",
+      ],
+      ["Tanggal Dibuat:", new Date().toLocaleDateString("id-ID")],
+      ["Format:", "EXCEL"],
+      ["Tipe:", "Custom Report"],
+      [""],
+      ["DESA YANG DISERTAKAN:"],
+      ...(customBuilder.villages.length > 0
+        ? customBuilder.villages.map((village) => [`- ${village}`])
+        : [["- Semua Desa (8 desa)"]]),
+      [""],
+      ["BAGIAN YANG DISERTAKAN:"],
+      ...template.sections.map((section) => {
+        const sectionInfo = availableSections.find((s) => s.id === section);
+        return [`- ${sectionInfo?.name || section}`];
+      }),
+      [""],
+      ["OPSI TAMBAHAN:"],
+      [`- Sertakan Grafik: ${customBuilder.includeCharts ? "Ya" : "Tidak"}`],
+      [
+        `- Sertakan Perbandingan: ${
+          customBuilder.includeComparison ? "Ya" : "Tidak"
+        }`,
+      ],
+    ];
+
+    const headerSheet = XLSX.utils.aoa_to_sheet(headerData);
+    headerSheet["!cols"] = [{ width: 30 }, { width: 50 }];
+    XLSX.utils.book_append_sheet(workbook, headerSheet, "Info Laporan Custom");
+
+    // Tambahkan sheet data sesuai pilihan
+    Object.entries(data).forEach(([sheetName, sheetData]) => {
+      if (Array.isArray(sheetData) && sheetData.length > 0) {
+        // Filter data berdasarkan desa yang dipilih jika ada
+        let filteredData = sheetData;
+        if (
+          customBuilder.villages.length > 0 &&
+          sheetData[0] &&
+          "Desa" in sheetData[0]
+        ) {
+          filteredData = sheetData.filter((row: any) =>
+            customBuilder.villages.includes(row.Desa)
+          );
+        }
+
+        if (filteredData.length > 0) {
+          const worksheet = XLSX.utils.json_to_sheet(filteredData);
+
+          // Auto-width dan styling
+          const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+          const colWidths: any[] = [];
+
+          for (let col = range.s.c; col <= range.e.c; col++) {
+            let maxWidth = 10;
+            for (let row = range.s.r; row <= range.e.r; row++) {
+              const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+              if (worksheet[cellAddress] && worksheet[cellAddress].v) {
+                const cellValue = worksheet[cellAddress].v.toString();
+                maxWidth = Math.max(maxWidth, cellValue.length + 2);
+              }
+            }
+            colWidths.push({ width: Math.min(maxWidth, 30) });
+          }
+          worksheet["!cols"] = colWidths;
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        }
+      }
+    });
+
+    // Generate dan download
+    const fileName = `Custom_${template.name.replace(/\s+/g, "_")}_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   };
 
   const toggleSection = (sectionId: string) => {
@@ -1130,21 +1969,34 @@ export default function ReportsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            {report.status === "completed" &&
-                              report.downloadUrl && (
-                                <Button variant="ghost" size="sm">
+                            {report.status === "completed" && (
+                              <div title="Download">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleDownloadFromHistory(report)
+                                  }
+                                >
                                   <FiDownload className="w-4 h-4" />
                                 </Button>
-                              )}
-                            <Button variant="ghost" size="sm">
-                              <FiEye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <FiShare2 className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <FiTrash2 className="w-4 h-4 text-red-500" />
-                            </Button>
+                              </div>
+                            )}
+                            <div title="Lihat Detail">
+                              <Button variant="ghost" size="sm">
+                                <FiEye className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div title="Bagikan">
+                              <Button variant="ghost" size="sm">
+                                <FiShare2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div title="Hapus">
+                              <Button variant="ghost" size="sm">
+                                <FiTrash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -1568,6 +2420,74 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <FiRefreshCw className="w-5 h-5 mr-2 text-green-600" />
+            Aktivitas Terbaru
+          </h3>
+
+          <div className="space-y-4">
+            {reportHistory.slice(0, 5).map((report) => (
+              <div
+                key={report.id}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`p-2 rounded-full ${getStatusColor(
+                      report.status
+                    )}`}
+                  >
+                    {report.status === "completed" && (
+                      <FiCheckCircle className="w-4 h-4" />
+                    )}
+                    {report.status === "processing" && (
+                      <FiClock className="w-4 h-4" />
+                    )}
+                    {report.status === "failed" && <FiX className="w-4 h-4" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {report.templateName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(report.generatedAt)} • {report.format} •{" "}
+                      {report.size}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge className={getStatusColor(report.status)} size="sm">
+                    {getStatusLabel(report.status)}
+                  </Badge>
+                  {report.status === "completed" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownloadFromHistory(report)}
+                    >
+                      <FiDownload className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Information */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>
+            Generator Laporan Desa - Sistem Pendataan Desa Kabupaten Bone
+            Bolango
+          </p>
+          <p className="mt-1">
+            Mendukung pengambilan keputusan strategis pemerintah pusat melalui
+            data yang akurat dan terpercaya
+          </p>
         </div>
       </div>
     </div>
